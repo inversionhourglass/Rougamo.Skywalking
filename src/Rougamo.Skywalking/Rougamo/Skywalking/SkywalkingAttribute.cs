@@ -1,8 +1,8 @@
-﻿using Rougamo.Context;
+﻿using Rougamo.APM;
+using Rougamo.Context;
 using SkyApm.Config;
 using SkyApm.Tracing;
 using SkyApm.Tracing.Segments;
-using System.Text;
 
 namespace Rougamo.Skywalking
 {
@@ -14,9 +14,20 @@ namespace Rougamo.Skywalking
         private SegmentContext _segmentContext;
 
         /// <summary>
+        /// use method full name if not set this property
+        /// </summary>
+        public string OperationName { get; set; }
+
+        /// <summary>
         /// donot record return value, false by default
         /// </summary>
         public bool IgnoreReturn { get; set; }
+
+        /// <summary>
+        /// when exception occurred, record the exception and mark the exception as recorded, 
+        /// outer <see cref="SkywalkingAttribute"/> will not record it again, true by default
+        /// </summary>
+        public bool MarkException { get; set; } = true;
 
         /// <summary>
         /// <inheritdoc/>
@@ -25,8 +36,9 @@ namespace Rougamo.Skywalking
         {
             if (Singleton.TracingContext == null) return;
 
-            _segmentContext = Singleton.TracingContext.CreateLocalSegmentContext($"{context.TargetType.FullName}.{context.Method.Name}");
-            _segmentContext.Span.AddLog(LogEvent.Message("parameters: " + GetMethodParameters(context)));
+            var operationName = string.IsNullOrEmpty(OperationName) ? $"{context.TargetType.FullName}.{context.Method.Name}" : OperationName;
+            _segmentContext = Singleton.TracingContext.CreateLocalSegmentContext(operationName);
+            _segmentContext.Span.AddLog(LogEvent.Message("parameters: " + context.GetMethodParameters(Singleton.Serializer)));
         }
 
         /// <summary>
@@ -46,7 +58,22 @@ namespace Rougamo.Skywalking
         {
             if (_segmentContext == null || Singleton.ConfigAccessor == null) return;
 
-            _segmentContext.Span.ErrorOccurred(context.Exception, Singleton.ConfigAccessor.Get<TracingConfig>());
+            if(MarkException)
+            {
+                if (context.Exception.Data.Contains(Constants.EXCEPTION_MARK))
+                {
+                    _segmentContext.Span.IsError = true;
+                }
+                else
+                {
+                    _segmentContext.Span.ErrorOccurred(context.Exception, Singleton.ConfigAccessor.Get<TracingConfig>());
+                    context.Exception.Data.Add(Constants.EXCEPTION_MARK, null);
+                }
+            }
+            else
+            {
+                _segmentContext.Span.ErrorOccurred(context.Exception, Singleton.ConfigAccessor.Get<TracingConfig>());
+            }
         }
 
         /// <summary>
@@ -57,19 +84,6 @@ namespace Rougamo.Skywalking
             if (_segmentContext == null || Singleton.TracingContext == null) return;
 
             Singleton.TracingContext.Release(_segmentContext);
-        }
-
-        private string GetMethodParameters(MethodContext context)
-        {
-            var ignores = context.Method.GetIgnoreArgs();
-            var count = context.Arguments.Length;
-            var builder = new StringBuilder();
-            for (int i = 0; i < count; i++)
-            {
-                var value = (ignores & (1 << i)) != 0 ? "***" : context.Arguments[i];
-                builder.Append($"arg{i}={Singleton.Serializer.Serialize(value)}&");
-            }
-            return builder.ToString();
         }
     }
 }

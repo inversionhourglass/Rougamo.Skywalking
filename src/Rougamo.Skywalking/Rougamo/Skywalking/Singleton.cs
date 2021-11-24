@@ -1,4 +1,4 @@
-﻿using Rougamo.Skywalking.Serialization;
+﻿using Rougamo.APM.Serialization;
 using SkyApm.Config;
 using SkyApm.Tracing;
 

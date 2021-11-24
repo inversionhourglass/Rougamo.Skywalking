@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Rougamo.APM;
+using System;
 
 namespace Rougamo.Skywalking
 {
@@ -6,7 +7,7 @@ namespace Rougamo.Skywalking
     /// skywalking ignore parameter value record
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Parameter)]
-    public class SkyIgnoreAttribute : Attribute
+    public class SkyIgnoreAttribute : ApmIgnoreAttribute
     {
     }
 }

@@ -5,9 +5,16 @@ VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0210579B-6F03-4895-9353-13EE0F51FCF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rougamo.Skywalking", "src\Rougamo.Skywalking\Rougamo.Skywalking.csproj", "{8AA32C27-4253-44A7-9359-310A7F584675}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rougamo.Skywalking", "src\Rougamo.Skywalking\Rougamo.Skywalking.csproj", "{8AA32C27-4253-44A7-9359-310A7F584675}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rougamo.Skywalking.AspNetCore", "src\Rougamo.Skywalking.AspNetCore\Rougamo.Skywalking.AspNetCore.csproj", "{D98A2DED-21E7-48D1-B743-8B593BFD8CF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rougamo.Skywalking.AspNetCore", "src\Rougamo.Skywalking.AspNetCore\Rougamo.Skywalking.AspNetCore.csproj", "{D98A2DED-21E7-48D1-B743-8B593BFD8CF0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{BFE95887-5D20-42F2-A585-A43241D746A8}"
+	ProjectSection(SolutionItems) = preProject
+		deploy.bat = deploy.bat
+		README.md = README.md
+		rougamo-skywalking.png = rougamo-skywalking.png
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
