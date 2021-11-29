@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
 	  <RootNamespace />
-    <Version>1.0.0</Version>
+    <Version>0.1.0</Version>
     <Authors>ihourglass</Authors>
     <Description>rougamo skywalking code weaver asp.net core agent</Description>
     <PackageTags>AOP APM skywalking</PackageTags>

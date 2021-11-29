@@ -16,18 +16,12 @@ namespace Rougamo.Skywalking
         /// <summary>
         /// use method full name if not set this property
         /// </summary>
-        public string OperationName { get; set; }
+        public virtual string OperationName { get; set; }
 
         /// <summary>
-        /// donot record return value, false by default
+        /// record parameter and return value and working with <see cref="ApmIgnoreAttribute"/> if true, otherwise dot not record those and working with <see cref="ApmRecordAttribute"/>, default true
         /// </summary>
-        public bool IgnoreReturn { get; set; }
-
-        /// <summary>
-        /// when exception occurred, record the exception and mark the exception as recorded, 
-        /// outer <see cref="SkywalkingAttribute"/> will not record it again, true by default
-        /// </summary>
-        public bool MarkException { get; set; } = true;
+        public virtual bool RecordArguments { get; set; } = true;
 
         /// <summary>
         /// <inheritdoc/>
@@ -37,8 +31,9 @@ namespace Rougamo.Skywalking
             if (Singleton.TracingContext == null) return;
 
             var operationName = string.IsNullOrEmpty(OperationName) ? $"{context.TargetType.FullName}.{context.Method.Name}" : OperationName;
+            var parameterString = context.GetMethodParameters(Singleton.Serializer, RecordArguments);
             _segmentContext = Singleton.TracingContext.CreateLocalSegmentContext(operationName);
-            _segmentContext.Span.AddLog(LogEvent.Message("parameters: " + context.GetMethodParameters(Singleton.Serializer)));
+            _segmentContext.Span.AddLog(LogEvent.Message("parameters: " + parameterString));
         }
 
         /// <summary>
@@ -46,9 +41,10 @@ namespace Rougamo.Skywalking
         /// </summary>
         public override void OnSuccess(MethodContext context)
         {
-            if (_segmentContext == null || IgnoreReturn) return;
+            if (_segmentContext == null) return;
 
-            _segmentContext.Span.AddLog(LogEvent.Message("return: " + Singleton.Serializer.Serialize(context.ReturnValue)));
+            var returnString = context.GetMethodReturnValue(Singleton.Serializer, RecordArguments);
+            _segmentContext.Span.AddLog(LogEvent.Message("return: " + returnString));
         }
 
         /// <summary>
@@ -58,7 +54,7 @@ namespace Rougamo.Skywalking
         {
             if (_segmentContext == null || Singleton.ConfigAccessor == null) return;
 
-            if(MarkException)
+            if(context.IsMuteExceptionForApm(RecordArguments))
             {
                 if (context.Exception.Data.Contains(Constants.EXCEPTION_MARK))
                 {
