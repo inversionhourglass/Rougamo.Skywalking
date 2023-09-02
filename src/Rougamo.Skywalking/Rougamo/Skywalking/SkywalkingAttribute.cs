@@ -28,11 +28,11 @@ namespace Rougamo.Skywalking
         /// </summary>
         public override void OnEntry(MethodContext context)
         {
-            if (Singleton.TracingContext == null) return;
+            if (SkywalkingSingleton.TracingContext == null) return;
 
             var operationName = string.IsNullOrEmpty(OperationName) ? $"{context.TargetType.FullName}.{context.Method.Name}" : OperationName;
-            var parameterString = context.GetMethodParameters(Singleton.Serializer, RecordArguments);
-            _segmentContext = Singleton.TracingContext.CreateLocalSegmentContext(operationName);
+            var parameterString = context.GetMethodParameters(SkywalkingSingleton.Serializer, RecordArguments);
+            _segmentContext = SkywalkingSingleton.TracingContext.CreateLocalSegmentContext(operationName);
             _segmentContext.Span.AddLog(LogEvent.Message("parameters: " + parameterString));
         }
 
@@ -43,7 +43,7 @@ namespace Rougamo.Skywalking
         {
             if (_segmentContext == null) return;
 
-            var returnString = context.GetMethodReturnValue(Singleton.Serializer, RecordArguments);
+            var returnString = context.GetMethodReturnValue(SkywalkingSingleton.Serializer, RecordArguments);
             _segmentContext.Span.AddLog(LogEvent.Message("return: " + returnString));
         }
 
@@ -52,23 +52,23 @@ namespace Rougamo.Skywalking
         /// </summary>
         public override void OnException(MethodContext context)
         {
-            if (_segmentContext == null || Singleton.ConfigAccessor == null) return;
+            if (_segmentContext == null || SkywalkingSingleton.ConfigAccessor == null) return;
 
             if(context.IsMuteExceptionForApm(RecordArguments))
             {
-                if (context.Exception.Data.Contains(Constants.EXCEPTION_MARK))
+                if (context.Exception.Data.Contains(SkywalkingConstants.EXCEPTION_MARK))
                 {
                     _segmentContext.Span.IsError = true;
                 }
                 else
                 {
-                    _segmentContext.Span.ErrorOccurred(context.Exception, Singleton.ConfigAccessor.Get<TracingConfig>());
-                    context.Exception.Data.Add(Constants.EXCEPTION_MARK, null);
+                    _segmentContext.Span.ErrorOccurred(context.Exception, SkywalkingSingleton.ConfigAccessor.Get<TracingConfig>());
+                    context.Exception.Data.Add(SkywalkingConstants.EXCEPTION_MARK, null);
                 }
             }
             else
             {
-                _segmentContext.Span.ErrorOccurred(context.Exception, Singleton.ConfigAccessor.Get<TracingConfig>());
+                _segmentContext.Span.ErrorOccurred(context.Exception, SkywalkingSingleton.ConfigAccessor.Get<TracingConfig>());
             }
         }
 
@@ -77,9 +77,9 @@ namespace Rougamo.Skywalking
         /// </summary>
         public override void OnExit(MethodContext context)
         {
-            if (_segmentContext == null || Singleton.TracingContext == null) return;
+            if (_segmentContext == null || SkywalkingSingleton.TracingContext == null) return;
 
-            Singleton.TracingContext.Release(_segmentContext);
+            SkywalkingSingleton.TracingContext.Release(_segmentContext);
         }
     }
 }

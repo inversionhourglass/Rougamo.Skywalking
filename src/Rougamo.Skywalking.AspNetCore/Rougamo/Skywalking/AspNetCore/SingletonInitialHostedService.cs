@@ -19,12 +19,12 @@ namespace Rougamo.Skywalking.AspNetCore
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Singleton.TracingContext = (ITracingContext)_provider.GetService(typeof(ITracingContext));
-            Singleton.ConfigAccessor = (IConfigAccessor)_provider.GetService(typeof(IConfigAccessor));
+            SkywalkingSingleton.TracingContext = (ITracingContext)_provider.GetService(typeof(ITracingContext));
+            SkywalkingSingleton.ConfigAccessor = (IConfigAccessor)_provider.GetService(typeof(IConfigAccessor));
             var serializer = _provider.GetService(typeof(ISerializer)) as ISerializer;
             if (serializer != null)
             {
-                Singleton.Serializer = serializer;
+                SkywalkingSingleton.Serializer = serializer;
             }
 
             return Task.CompletedTask;

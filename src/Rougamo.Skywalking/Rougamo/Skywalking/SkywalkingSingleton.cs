@@ -6,7 +6,7 @@ namespace Rougamo.Skywalking
 {
     /// <summary>
     /// </summary>
-    public class Singleton
+    public class SkywalkingSingleton
     {
         /// <summary>
         /// <see cref="ITracingContext"/>

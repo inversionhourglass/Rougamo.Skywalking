@@ -3,7 +3,7 @@
     /// <summary>
     /// constants
     /// </summary>
-    public class Constants
+    public class SkywalkingConstants
     {
         /// <summary>
         /// Exception Data Key
